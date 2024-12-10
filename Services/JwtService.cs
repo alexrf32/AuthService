@@ -13,9 +13,12 @@ public class JwtService
 
     public JwtService(IConfiguration configuration)
     {
-        _key = configuration["Jwt:Key"];
-        _issuer = configuration["Jwt:Issuer"];
-        _audience = configuration["Jwt:Audience"];
+        _key = configuration["Jwt:Key"] 
+               ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+        _issuer = configuration["Jwt:Issuer"] 
+                  ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+        _audience = configuration["Jwt:Audience"] 
+                    ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
     }
 
     public string GenerateToken(string email, string role)
@@ -40,3 +43,4 @@ public class JwtService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
+

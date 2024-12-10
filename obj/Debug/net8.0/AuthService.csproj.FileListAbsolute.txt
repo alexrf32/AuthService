@@ -124,6 +124,7 @@ C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\Auth
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\AuthService.csproj.CoreCompileInputs.cache
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\AuthService.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\AuthService.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\AuthService.sourcelink.json
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\aawrf\OneDrive\Escritorio\AuthService\AuthService\obj\Debug\net8.0\staticwebassets\msbuild.AuthService.Microsoft.AspNetCore.StaticWebAssets.props

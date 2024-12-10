@@ -15,7 +15,7 @@ Configuración inicial
 1. Clona el repositorio
 bash
 Copiar código
-git clone https://github.com/tu-repositorio/AuthService.git
+git clone https://github.com/alexrf32/AuthService.git
 cd AuthService
 2. Configura el archivo appsettings.json
 Modifica las configuraciones en el archivo appsettings.json según tu entorno:
@@ -40,20 +40,39 @@ json
 }
 3. Restaurar dependencias
 Ejecuta el siguiente comando para restaurar las dependencias del proyecto:
-
-bash
-Copiar código
 dotnet restore
+
 4. Migrar la base de datos
 Ejecuta las migraciones para configurar la base de datos:
-
-bash
-Copiar código
 dotnet ef database update
+
 Ejecución del proyecto
 Para iniciar el microservicio, usa el siguiente comando:
-
-bash
-Copiar código
 dotnet run
-Esto levantará el servicio en http://localhost:5000 o https://localhost:5001.
+Esto levantará el servicio en http://localhost:5095.
+
+Endpoints
+1. Login
+URL: /api/auth/login
+Método: POST
+Descripción: Genera un token JWT para un usuario autenticado.
+2. Revocar token
+URL: /api/auth/revoke
+Método: POST
+Descripción: Revoca un token específico.
+3. Validar token
+URL: /api/auth/validate
+Método: GET
+Descripción: Verifica si un token es válido.
+Query Parameter: ?token=<TOKEN>
+
+Pruebas
+Swagger
+Cuando el servicio esté en ejecución, accede a http://localhost:5095/swagger para explorar y probar los endpoints mediante Swagger UI.
+
+Postman
+Puedes importar los siguientes endpoints en Postman para realizar pruebas:
+
+Login
+Revoke
+Validate
