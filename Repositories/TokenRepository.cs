@@ -1,10 +1,11 @@
-using AuthService.Data; 
+using AuthService.Data;
 using AuthService.Models;
+using AuthService.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Repositories;
 
-public class TokenRepository
+public class TokenRepository : ITokenRepository
 {
     private readonly DataContext _context;
 
@@ -15,7 +16,14 @@ public class TokenRepository
 
     public async Task AddToBlacklist(string token)
     {
-        _context.RevokedTokens.Add(new RevokedToken { Token = token, RevokedAt = DateTime.UtcNow });
+        if (await IsTokenRevoked(token)) return;
+
+        _context.RevokedTokens.Add(new RevokedToken
+        {
+            Token = token,
+            RevokedAt = DateTime.UtcNow
+        });
+
         await _context.SaveChangesAsync();
     }
 

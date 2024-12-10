@@ -1,21 +1,24 @@
+using AuthService.Data;
+using AuthService.Repositories;
+using AuthService.Repositories.Interfaces;
+using AuthService.Services;
+using AuthService.Services.Interfaces;
+using AuthService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AuthService.Data;
-using AuthService.Repositories;
-using AuthService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de JWT
-var jwtKey = builder.Configuration["Jwt:Key"] 
-             ?? throw new InvalidOperationException("Jwt:Key is required in the configuration.");
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] 
-                ?? throw new InvalidOperationException("Jwt:Issuer is required in the configuration.");
-var jwtAudience = builder.Configuration["Jwt:Audience"] 
-                  ?? throw new InvalidOperationException("Jwt:Audience is required in the configuration.");
+// Configuración de la cadena de conexión
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+// Configuración del contexto de la base de datos
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Configuración de autenticación JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -25,29 +28,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing"))
+            )
         };
     });
 
-// Configuración de la base de datos
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Configuración de servicios e inyección de dependencias
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<RoleRepository>();
-builder.Services.AddScoped<TokenRepository>();
+// Registro de dependencias (DI)
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddSingleton<JwtService>();
 
+// Configuración adicional
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Configuración de middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -56,5 +59,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();

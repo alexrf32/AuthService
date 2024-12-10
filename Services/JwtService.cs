@@ -1,3 +1,4 @@
+using AuthService.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -5,7 +6,7 @@ using System.Text;
 
 namespace AuthService.Services;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly string _key;
     private readonly string _issuer;
@@ -13,12 +14,9 @@ public class JwtService
 
     public JwtService(IConfiguration configuration)
     {
-        _key = configuration["Jwt:Key"] 
-               ?? throw new InvalidOperationException("Jwt:Key is not configured.");
-        _issuer = configuration["Jwt:Issuer"] 
-                  ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
-        _audience = configuration["Jwt:Audience"] 
-                    ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+        _key = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing");
+        _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is missing");
+        _audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience is missing");
     }
 
     public string GenerateToken(string email, string role)
@@ -36,11 +34,10 @@ public class JwtService
             issuer: _issuer,
             audience: _audience,
             claims: claims,
-            expires: DateTime.Now.AddDays(1),
+            expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: credentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
-

@@ -1,10 +1,11 @@
-using AuthService.Data; 
+using AuthService.Data;
 using AuthService.Models;
+using AuthService.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Repositories;
 
-public class UserRepository
+public class UserRepository : IUserRepository
 {
     private readonly DataContext _context;
 
