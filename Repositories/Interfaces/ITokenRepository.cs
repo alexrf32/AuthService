@@ -1,7 +1,9 @@
-namespace AuthService.Repositories.Interfaces;
-
-public interface ITokenRepository
+namespace AuthService.Repositories.Interfaces
 {
-    Task AddToBlacklist(string token);
-    Task<bool> IsTokenRevoked(string token);
+    public interface ITokenRepository
+    {
+        Task AddToBlacklist(string token);
+        Task<bool> IsTokenRevoked(string token);
+        Task RemoveFromBlacklist(string token); 
+    }
 }

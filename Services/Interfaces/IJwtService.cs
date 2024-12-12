@@ -1,6 +1,9 @@
-namespace AuthService.Services.Interfaces;
-
-public interface IJwtService
+namespace AuthService.Services.Interfaces
 {
-    string GenerateToken(string email, string role);
+    public interface IJwtService
+    {
+        string GenerateToken(string email, string role);
+        bool ValidateToken(string token); 
+        string GetEmailFromToken(string token); 
+    }
 }

@@ -1,43 +1,64 @@
 using AuthService.Services.Interfaces;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
+using System;
 
-namespace AuthService.Services;
-
-public class JwtService : IJwtService
+namespace AuthService.Services
 {
-    private readonly string _key;
-    private readonly string _issuer;
-    private readonly string _audience;
-
-    public JwtService(IConfiguration configuration)
+    public class JwtService : IJwtService
     {
-        _key = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing");
-        _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is missing");
-        _audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience is missing");
-    }
+        private readonly string _secretKey = "AlexRojasFuentes203486111AlexRojasFu"; 
 
-    public string GenerateToken(string email, string role)
-    {
-        var claims = new[]
+        public string GenerateToken(string email, string role)
         {
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
-        };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                issuer: "AuthService",
+                audience: "AuthServiceUsers",
+                claims: new[] { new Claim(ClaimTypes.Email, email), new Claim(ClaimTypes.Role, role) },
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds
+            );
 
-        var token = new JwtSecurityToken(
-            issuer: _issuer,
-            audience: _audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(1),
-            signingCredentials: credentials
-        );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        public bool ValidateToken(string token)
+        {
+            try
+            {
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = "AuthService",
+                    ValidAudience = "AuthServiceUsers",
+                    IssuerSigningKey = creds.Key
+                }, out var validatedToken);
+
+                return validatedToken != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public string GetEmailFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            var emailClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+            return emailClaim?.Value;
+        }
     }
 }

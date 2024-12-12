@@ -3,32 +3,46 @@ using AuthService.Models;
 using AuthService.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthService.Repositories;
-
-public class TokenRepository : ITokenRepository
+namespace AuthService.Repositories
 {
-    private readonly DataContext _context;
-
-    public TokenRepository(DataContext context)
+    public class TokenRepository : ITokenRepository
     {
-        _context = context;
-    }
+        private readonly DataContext _context;
 
-    public async Task AddToBlacklist(string token)
-    {
-        if (await IsTokenRevoked(token)) return;
-
-        _context.RevokedTokens.Add(new RevokedToken
+        public TokenRepository(DataContext context)
         {
-            Token = token,
-            RevokedAt = DateTime.UtcNow
-        });
+            _context = context;
+        }
 
-        await _context.SaveChangesAsync();
-    }
+        public async Task AddToBlacklist(string token)
+        {
+            if (await IsTokenRevoked(token)) return;
 
-    public async Task<bool> IsTokenRevoked(string token)
-    {
-        return await _context.RevokedTokens.AnyAsync(rt => rt.Token == token);
+            _context.RevokedTokens.Add(new RevokedToken
+            {
+                Token = token,
+                RevokedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsTokenRevoked(string token)
+        {
+            return await _context.RevokedTokens.AnyAsync(rt => rt.Token == token);
+        }
+
+        // Implementación de RemoveFromBlacklist
+        public async Task RemoveFromBlacklist(string token)
+        {
+            var revokedToken = await _context.RevokedTokens
+                .FirstOrDefaultAsync(rt => rt.Token == token);
+
+            if (revokedToken != null)
+            {
+                _context.RevokedTokens.Remove(revokedToken);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
