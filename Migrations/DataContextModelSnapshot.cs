@@ -42,7 +42,7 @@ namespace AuthService.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("RevokedTokens");
+                    b.ToTable("RevokedTokens", (string)null);
                 });
 
             modelBuilder.Entity("AuthService.Models.Role", b =>
@@ -62,7 +62,7 @@ namespace AuthService.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("AuthService.Models.User", b =>
@@ -88,7 +88,7 @@ namespace AuthService.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AuthService.Models.User", b =>

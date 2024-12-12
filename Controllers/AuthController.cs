@@ -13,6 +13,7 @@ public class AuthController : ControllerBase
         _authenticationService = authenticationService;
     }
 
+    // Ruta para iniciar sesión
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto loginRequestDto)
     {
@@ -25,6 +26,33 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
+    // Ruta para registrar un nuevo usuario
+    [HttpPost("register")]
+    public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterStudentDto registerStudentDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _authenticationService.RegisterAsync(registerStudentDto);
+        return CreatedAtAction(nameof(Login), new { email = registerStudentDto.Email }, registerStudentDto);
+    }
+
+    // Ruta para actualizar la contraseña
+    [HttpPut("update-password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updatePasswordDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _authenticationService.UpdatePasswordAsync(updatePasswordDto);
+        return NoContent();
+    }
+
+    // Ruta para revocar el token
     [HttpPost("revoke")]
     public async Task<IActionResult> RevokeToken([FromBody] string token)
     {
@@ -32,6 +60,7 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
+    // Ruta para validar el token
     [HttpGet("validate")]
     public async Task<ActionResult<bool>> ValidateToken([FromQuery] string token)
     {
