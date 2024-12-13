@@ -62,6 +62,9 @@ builder.Services.AddSingleton<IModel>(sp =>
     return connection.CreateModel();
 });
 
+// Agregar RabbitMqService al contenedor de servicios
+builder.Services.AddSingleton<RabbitMqService>();
+
 // Configuración adicional
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -80,5 +83,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Iniciar el consumidor de RabbitMQ
+var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
+Task.Run(() => rabbitMqService.ConsumeMessage("hello"));
 
 app.Run();
